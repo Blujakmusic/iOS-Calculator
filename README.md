@@ -1,2 +1,2 @@
 # iOS-Calculator
-Basic iOS adjacent calculator using HTML, CSS and vanilla JavaScript
+Optimized and responsive iOS adjacent calculator that I built using HTML, CSS and vanilla JavaScript.
