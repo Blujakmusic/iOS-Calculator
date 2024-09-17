@@ -1,0 +1,328 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Adjacent Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: #15263A;
+            color: #ffffff;
+        }
+
+        .calculator {
+            width: 320px;
+            border-radius: 40px;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .display {
+            background-color: #1c1c1c;
+            border-radius: 10px;
+            height: 100px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #result {
+            font-weight: 300;
+            text-align: right;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .number {
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        .number:hover {
+            background-color: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+        }
+
+        .operator {
+            background-color: #f09a36;
+            color: #fff;
+        }
+
+        .operator:hover {
+            background-color: #0f65c9;
+            color: #ffffff;
+        }
+
+        .function {
+            background-color: #a5a5a5;
+        }
+
+        .function:hover {
+            background-color: #333;
+            color: #ffffff;
+        }
+
+        .btn.zero {
+            flex: 2;
+            border-radius: 50px;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        /* Responsive Mobile Viewing */
+        @media (max-width: 400px) {
+            .calculator {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 15px;
+            }
+
+            .display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div id="result">0</div>
+        </div>
+        <div class="buttons">
+            <div class="row">
+                <button class="btn function" id="clear">AC</button>
+                <button class="btn function" id="plus-minus">±</button>
+                <button class="btn function" id="percent">%</button>
+                <button class="btn operator" id="divide">÷</button>
+            </div>
+            <div class="row">
+                <button class="btn number" id="7">7</button>
+                <button class="btn number" id="8">8</button>
+                <button class="btn number" id="9">9</button>
+                <button class="btn operator" id="multiply">×</button>
+            </div>
+            <div class="row">
+                <button class="btn number" id="4">4</button>
+                <button class="btn number" id="5">5</button>
+                <button class="btn number" id="6">6</button>
+                <button class="btn operator" id="subtract">−</button>
+            </div>
+            <div class="row">
+                <button class="btn number" id="1">1</button>
+                <button class="btn number" id="2">2</button>
+                <button class="btn number" id="3">3</button>
+                <button class="btn operator" id="add">+</button>
+            </div>
+            <div class="row">
+                <button class="btn number zero" id="0">0</button>
+                <button class="btn number" id="dot">.</button>
+                <button class="btn operator" id="equals">=</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables for calculations
+            let currentInput = '0';
+            let previousInput = '';
+            let operator = '';
+            let resultDisplayed = false;
+
+            const resultDisplay = document.getElementById('result');
+
+            function updateDisplay(value) {
+                resultDisplay.textContent = value;
+            }
+
+            function clearCalculator() {
+                currentInput = '0';
+                previousInput = '';
+                operator = '';
+                resultDisplayed = false;
+                updateDisplay(currentInput);
+            }
+
+            function inputNumber(number) {
+                if (resultDisplayed) {
+                    currentInput = number;
+                    resultDisplayed = false;
+                } else {
+                    if (currentInput === '0') {
+                        currentInput = number;
+                    } else {
+                        currentInput += number;
+                    }
+                }
+                updateDisplay(currentInput);
+            }
+
+            function inputDot() {
+                if (currentInput.indexOf('.') === -1) {
+                    currentInput += '.';
+                }
+                updateDisplay(currentInput);
+            }
+
+            function handleOperator(op) {
+                if (operator) {
+                    // Calculate result if operator already exists
+                    currentInput = calculate();
+                    updateDisplay(currentInput);
+                }
+                previousInput = currentInput;
+                operator = op;
+                resultDisplayed = true;
+                currentInput = '0'; // reset for next input
+            }
+
+            function calculate() {
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                let result = 0;
+
+                if (operator === 'add') {
+                    result = prev + current;
+                } else if (operator === 'subtract') {
+                    result = prev - current;
+                } else if (operator === 'multiply') {
+                    result = prev * current;
+                } else if (operator === 'divide') {
+                    if (current === 0) {
+                        return 'Error'; // Prevent division by zero
+                    }
+                    result = prev / current;
+                } else {
+                    return currentInput; // If no valid operator, return current input
+                }
+
+                return result.toString();
+            }
+
+            function performCalculation() {
+                if (operator === '') {
+                    return; // No operation to perform
+                }
+                currentInput = calculate();
+                updateDisplay(currentInput);
+                previousInput = ''; // Reset previousInput after calculation
+                operator = ''; // Reset operator after calculation
+                resultDisplayed = true; // Ensure the result is displayed and further inputs will start fresh
+            }
+
+            function toggleSign() {
+                if (currentInput.charAt(0) === '-') {
+                    currentInput = currentInput.slice(1);
+                } else {
+                    currentInput = '-' + currentInput;
+                }
+                updateDisplay(currentInput);
+            }
+
+            function percentage() {
+                currentInput = (parseFloat(currentInput) / 100).toString();
+                updateDisplay(currentInput);
+            }
+
+            // Event listeners for numbers
+            const numberButtons = document.querySelectorAll('.number');
+            for (var i = 0; i < numberButtons.length; i++) {
+                numberButtons[i].addEventListener('click', function(e) {
+                    inputNumber(e.target.textContent);
+                });
+            }
+
+            // Event listeners for operations
+            const operatorButtons = document.querySelectorAll('.operator');
+            for (var i = 0; i < operatorButtons.length; i++) {
+                operatorButtons[i].addEventListener('click', function(e) {
+                    const operatorId = e.target.id;
+                    switch (operatorId) {
+                        case 'add':
+                            handleOperator('add');
+                            break;
+                        case 'subtract':
+                            handleOperator('subtract');
+                            break;
+                        case 'multiply':
+                            handleOperator('multiply');
+                            break;
+                        case 'divide':
+                            handleOperator('divide');
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
+
+            document.getElementById('dot').addEventListener('click', function() {
+                inputDot();
+            });
+
+            document.getElementById('clear').addEventListener('click', function() {
+                clearCalculator();
+            });
+
+            document.getElementById('plus-minus').addEventListener('click', function() {
+                toggleSign();
+            });
+
+            document.getElementById('percent').addEventListener('click', function() {
+                percentage();
+            });
+
+            document.getElementById('equals').addEventListener('click', function() {
+                performCalculation();
+            });
+
+            // Initialize display
+            updateDisplay(currentInput);
+        });
+    </script>
+</body>
+</html>
